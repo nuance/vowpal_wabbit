@@ -150,12 +150,6 @@ int main(int argc, char* argv[]) {
       exit(1);
     }
 
-  if (daemon(1,1))
-    {
-      cerr << "failure to background!" << endl;
-      exit(1);
-    }
-
   if (argc == 2)
     {	  
       ofstream pid_file;
