@@ -55,17 +55,17 @@ int main(int argc, char *argv[])
 
   if(all.span_server != "") {
     float loss = (float)all.sd->sum_loss;
-    all.sd->sum_loss = (double)accumulate_scalar(all, all.span_server, loss);
+    all.sd->sum_loss = (double)accumulate_scalar(all, all.span_server, all.listen_port, loss);
     float weighted_examples = (float)all.sd->weighted_examples;
-    all.sd->weighted_examples = (double)accumulate_scalar(all, all.span_server, weighted_examples);
+    all.sd->weighted_examples = (double)accumulate_scalar(all, all.span_server, all.listen_port, weighted_examples);
     float weighted_labels = (float)all.sd->weighted_labels;
-    all.sd->weighted_labels = (double)accumulate_scalar(all, all.span_server, weighted_labels);
+    all.sd->weighted_labels = (double)accumulate_scalar(all, all.span_server, all.listen_port, weighted_labels);
     float weighted_unlabeled_examples = (float)all.sd->weighted_unlabeled_examples;
-    all.sd->weighted_unlabeled_examples = (double)accumulate_scalar(all, all.span_server, weighted_unlabeled_examples);
+    all.sd->weighted_unlabeled_examples = (double)accumulate_scalar(all, all.span_server, all.listen_port, weighted_unlabeled_examples);
     float example_number = (float)all.sd->example_number;
-    all.sd->example_number = (uint64_t)accumulate_scalar(all, all.span_server, example_number);
+    all.sd->example_number = (uint64_t)accumulate_scalar(all, all.span_server, all.listen_port, example_number);
     float total_features = (float)all.sd->total_features;
-    all.sd->total_features = (uint64_t)accumulate_scalar(all, all.span_server, total_features);
+    all.sd->total_features = (uint64_t)accumulate_scalar(all, all.span_server, all.listen_port, total_features);
   }
 
   float weighted_labeled_examples = (float)(all.sd->weighted_examples - all.sd->weighted_unlabeled_examples);

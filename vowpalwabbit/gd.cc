@@ -126,9 +126,9 @@ void learn(void* a, void* d, example* ec)
       
       if(all->span_server != "") {
 	if(all->adaptive)
-	  accumulate_weighted_avg(*all, all->span_server, all->reg);
+	  accumulate_weighted_avg(*all, all->span_server, all->listen_port, all->reg);
 	else 
-	  accumulate_avg(*all, all->span_server, all->reg, 0);	      
+	  accumulate_avg(*all, all->span_server, all->listen_port, all->reg, 0);	      
       }
       
       if (all->save_per_pass)
@@ -745,9 +745,9 @@ void save_load(void* in, void* data, io_buf& model_file, bool read, bool text)
       sync_weights(*all); 
       if(all->span_server != "") {
 	if(all->adaptive)
-	  accumulate_weighted_avg(*all, all->span_server, all->reg);
+	  accumulate_weighted_avg(*all, all->span_server, all->listen_port, all->reg);
 	else
-	  accumulate_avg(*all, all->span_server, all->reg, 0);
+	  accumulate_avg(*all, all->span_server, all->listen_port, all->reg, 0);
       }
     }
 

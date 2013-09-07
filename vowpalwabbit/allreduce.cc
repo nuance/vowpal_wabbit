@@ -89,7 +89,7 @@ socket_t getsock()
   return sock;
 }
 
-void all_reduce_init(const string master_location, const size_t unique_id, const size_t total, const size_t node, node_socks& socks)
+void all_reduce_init(const string master_location, const int listen_port, const size_t unique_id, const size_t total, const size_t node, node_socks& socks)
 {
 #ifdef _WIN32
   WSAData wsaData;
@@ -131,7 +131,7 @@ void all_reduce_init(const string master_location, const size_t unique_id, const
     cerr << "read 2 failed!" << endl;
 
   socket_t sock = -1;
-  short unsigned int netport = htons(26544);
+  short unsigned int netport = htons(listen_port);
   if(kid_count > 0) {
     sock = getsock();
     sockaddr_in address;
@@ -144,20 +144,8 @@ void all_reduce_init(const string master_location, const size_t unique_id, const
     {
       if (bind(sock,(sockaddr*)&address, sizeof(address)) < 0)
       {
-#ifdef _WIN32
-        if (WSAGetLastError() == WSAEADDRINUSE)
-#else
-        if (errno == EADDRINUSE)
-#endif
-        {
-          netport = htons(ntohs(netport)+1);
-          address.sin_port = netport;
-        }
-        else
-        {
-          perror("Bind failed ");
-          throw exception();
-        }
+        perror("Bind failed ");
+        throw exception();
       }
       else
       {
@@ -387,10 +375,10 @@ void broadcast(char* buffer, const int n, const socket_t parent_sock, const sock
     }
 }
 
-void all_reduce(float* buffer, const int n, const string master_location, const size_t unique_id, const size_t total, const size_t node, node_socks& socks) 
+void all_reduce(float* buffer, const int n, const string master_location, const int listen_port, const size_t unique_id, const size_t total, const size_t node, node_socks& socks) 
 {
   if(master_location != socks.current_master) 
-    all_reduce_init(master_location, unique_id, total, node, socks);
+    all_reduce_init(master_location, listen_port, unique_id, total, node, socks);
   reduce((char*)buffer, n*sizeof(float), socks.parent, socks.children);
   broadcast((char*)buffer, n*sizeof(float), socks.parent, socks.children);
 }
