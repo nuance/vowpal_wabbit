@@ -97,6 +97,8 @@ void all_reduce_init(const string master_location, const string location, const 
   int lastError = WSAGetLastError();
 #endif
 
+  cerr << "I'm " << location << " and the master is " << master_location << endl;
+
   struct hostent* master = gethostbyname(master_location.c_str());
   struct hostent* local = gethostbyname(location.c_str());
 
