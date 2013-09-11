@@ -211,6 +211,7 @@ struct vw {
   std::string text_regressor_name;
   
   std::string span_server;
+  std::string listen_address;
   int listen_port;
 
   size_t length () { return ((size_t)1) << num_bits; };

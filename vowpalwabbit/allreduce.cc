@@ -89,7 +89,7 @@ socket_t getsock()
   return sock;
 }
 
-void all_reduce_init(const string master_location, const int listen_port, const size_t unique_id, const size_t total, const size_t node, node_socks& socks)
+void all_reduce_init(const string master_location, const string location, const int listen_port, const size_t unique_id, const size_t total, const size_t node, node_socks& socks)
 {
 #ifdef _WIN32
   WSAData wsaData;
@@ -98,14 +98,20 @@ void all_reduce_init(const string master_location, const int listen_port, const 
 #endif
 
   struct hostent* master = gethostbyname(master_location.c_str());
+  struct hostent* local = gethostbyname(location.c_str());
 
   if (master == NULL) {
     cerr << "can't resolve hostname: " << master_location << endl;
     throw exception();
   }
+  if (local == NULL) {
+    cerr << "can't resolve hostname: " << location << endl;
+    throw exception();
+  }
   socks.current_master = master_location;
 
   uint32_t master_ip = * ((uint32_t*)master->h_addr);
+  uint32_t local_ip = * ((uint32_t*)local->h_addr);
   int port = 26543;
 
   socket_t master_sock = sock_connect(master_ip, htons(port));
@@ -162,6 +168,9 @@ void all_reduce_init(const string master_location, const int listen_port, const 
       }
     }
   }
+
+  if(send(master_sock, (const char*)&local_ip, sizeof(local_ip), 0) < (int)sizeof(local_ip))
+    cerr << "write failed!" << endl;
 
   if(send(master_sock, (const char*)&netport, sizeof(netport), 0) < (int)sizeof(netport))
     cerr << "write failed!" << endl;
@@ -375,10 +384,10 @@ void broadcast(char* buffer, const int n, const socket_t parent_sock, const sock
     }
 }
 
-void all_reduce(float* buffer, const int n, const string master_location, const int listen_port, const size_t unique_id, const size_t total, const size_t node, node_socks& socks) 
+void all_reduce(float* buffer, const int n, const string master_location, const string location, const int listen_port, const size_t unique_id, const size_t total, const size_t node, node_socks& socks) 
 {
   if(master_location != socks.current_master) 
-    all_reduce_init(master_location, listen_port, unique_id, total, node, socks);
+    all_reduce_init(master_location, location, listen_port, unique_id, total, node, socks);
   reduce((char*)buffer, n*sizeof(float), socks.parent, socks.children);
   broadcast((char*)buffer, n*sizeof(float), socks.parent, socks.children);
 }

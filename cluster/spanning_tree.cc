@@ -253,19 +253,22 @@ int main(int argc, char* argv[]) {
 	    fail_send(partial_nodeset.nodes[i].socket, &kid_count[i], sizeof(kid_count[i]));
 	  }	
 
-	uint16_t* client_ports=(uint16_t*)calloc(total,sizeof(uint16_t));
+        uint32_t* client_addrs=(uint32_t*)calloc(total,sizeof(uint32_t));
+        uint16_t* client_ports=(uint16_t*)calloc(total,sizeof(uint16_t));
 
 	for(size_t i = 0;i < total;i++) {
 	  int done = 0;
-	  if(recv(partial_nodeset.nodes[i].socket, (char*)&(client_ports[i]), sizeof(client_ports[i]), 0) < (int) sizeof(client_ports[i])) 
-	    cerr<<" Port read failed for node "<<i<<" read "<<done<<endl;
+          if(recv(partial_nodeset.nodes[i].socket, (char*)&(client_addrs[i]), sizeof(client_addrs[i]), 0) < (int) sizeof(client_addrs[i])) 
+            cerr<<" Address read failed for node "<<i<<" read "<<done<<endl;
+          if(recv(partial_nodeset.nodes[i].socket, (char*)&(client_ports[i]), sizeof(client_ports[i]), 0) < (int) sizeof(client_ports[i])) 
+            cerr<<" Port read failed for node "<<i<<" read "<<done<<endl;
 	}// all clients have bound to their ports.
 	
 	for (size_t i = 0; i < total; i++)
 	  {
 	    if (parent[i] >= 0)
 	      {
-		fail_send(partial_nodeset.nodes[i].socket, &partial_nodeset.nodes[parent[i]].client_ip, sizeof(partial_nodeset.nodes[parent[i]].client_ip));
+		fail_send(partial_nodeset.nodes[i].socket, &client_addrs[parent[i]], sizeof(client_addrs[parent[i]]));
 		fail_send(partial_nodeset.nodes[i].socket, &client_ports[parent[i]], sizeof(client_ports[parent[i]]));
 		}
 	    else

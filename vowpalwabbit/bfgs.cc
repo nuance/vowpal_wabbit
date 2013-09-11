@@ -620,15 +620,15 @@ int process_pass(vw& all, bfgs& b) {
     if (b.first_pass) {
       if(all.span_server != "")
 	{
-	  accumulate(all, all.span_server, all.listen_port, all.reg, W_COND); //Accumulate preconditioner
+	  accumulate(all, all.reg, W_COND); //Accumulate preconditioner
 	  float temp = (float)b.importance_weight_sum;
-	  b.importance_weight_sum = accumulate_scalar(all, all.span_server, all.listen_port, temp);
+	  b.importance_weight_sum = accumulate_scalar(all, temp);
 	}
       finalize_preconditioner(all, b, all.l2_lambda);
       if(all.span_server != "") {
 	float temp = (float)b.loss_sum;
-	b.loss_sum = accumulate_scalar(all, all.span_server, all.listen_port, temp);  //Accumulate loss_sums
-	accumulate(all, all.span_server, all.listen_port, all.reg, 1); //Accumulate gradients from all nodes
+	b.loss_sum = accumulate_scalar(all, temp);  //Accumulate loss_sums
+	accumulate(all, all.reg, 1); //Accumulate gradients from all nodes
       }
       if (all.l2_lambda > 0.)
 	b.loss_sum += add_regularization(all, b, all.l2_lambda);
@@ -661,8 +661,8 @@ int process_pass(vw& all, bfgs& b) {
 		{
 		  if(all.span_server != "") {
 		    float t = (float)b.loss_sum;
-		    b.loss_sum = accumulate_scalar(all, all.span_server, all.listen_port, t);  //Accumulate loss_sums
-		    accumulate(all, all.span_server, all.listen_port, all.reg, 1); //Accumulate gradients from all nodes
+		    b.loss_sum = accumulate_scalar(all, t);  //Accumulate loss_sums
+		    accumulate(all, all.reg, 1); //Accumulate gradients from all nodes
 		  }
 		  if (all.l2_lambda > 0.)
 		    b.loss_sum += add_regularization(all, b, all.l2_lambda);
@@ -749,7 +749,7 @@ int process_pass(vw& all, bfgs& b) {
 		{
 		  if(all.span_server != "") {
 		    float t = (float)b.curvature;
-		    b.curvature = accumulate_scalar(all, all.span_server, all.listen_port, t);  //Accumulate curvatures
+		    b.curvature = accumulate_scalar(all, t);  //Accumulate curvatures
 		  }
 		  if (all.l2_lambda > 0.)
 		    b.curvature += regularizer_direction_magnitude(all, b, all.l2_lambda);
@@ -786,7 +786,7 @@ int process_pass(vw& all, bfgs& b) {
     if (b.output_regularizer)//need to accumulate and place the regularizer.
       {
 	if(all.span_server != "")
-	  accumulate(all, all.span_server, all.listen_port, all.reg, W_COND); //Accumulate preconditioner
+	  accumulate(all, all.reg, W_COND); //Accumulate preconditioner
 	preconditioner_to_regularizer(all, b, all.l2_lambda);
       }
     ftime(&b.t_end_global);
