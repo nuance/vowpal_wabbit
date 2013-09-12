@@ -100,21 +100,23 @@ void all_reduce_init(const string master_location, const string location, const 
   cerr << "I'm " << location << " and the master is " << master_location << endl;
 
   struct hostent* master = gethostbyname(master_location.c_str());
-  struct hostent* local = gethostbyname(location.c_str());
-
   if (master == NULL) {
     cerr << "can't resolve hostname: " << master_location << endl;
     throw exception();
   }
+  uint32_t master_ip = * ((uint32_t*)master->h_addr);
+  socks.current_master = master_location;
+
+  struct hostent* local = gethostbyname(location.c_str());
   if (local == NULL) {
     cerr << "can't resolve hostname: " << location << endl;
     throw exception();
   }
-  socks.current_master = master_location;
-
-  uint32_t master_ip = * ((uint32_t*)master->h_addr);
   uint32_t local_ip = * ((uint32_t*)local->h_addr);
+
   int port = 26543;
+
+  cerr << "master ip " << master_ip << " my ip " << local_ip << endl;
 
   socket_t master_sock = sock_connect(master_ip, htons(port));
   if(send(master_sock, (const char*)&unique_id, sizeof(unique_id), 0) < (int)sizeof(unique_id))
